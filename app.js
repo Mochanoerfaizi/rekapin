@@ -28,6 +28,7 @@ const sidebar = document.querySelector("#sidebar");
 let authMode = "signin";
 let transactionType = "expense";
 let currentUser = null;
+let suppressAuthEvents = false;
 let accounts = [];
 let categories = [];
 let transactions = [];
@@ -75,7 +76,10 @@ function getAuthErrorMessage(error) {
     return "Pendaftaran belum tersimpan karena tabel database belum siap. Jalankan supabase/schema.sql di Supabase SQL Editor, lalu coba daftar lagi.";
   }
   if (message.toLowerCase().includes("invalid login credentials")) {
-    return "Email atau kata sandi tidak cocok. Jika baru mendaftar, pastikan schema database sudah dijalankan dan konfirmasi email selesai.";
+    return "Email atau kata sandi tidak cocok. Jika baru mendaftar, pastikan schema database sudah dijalankan.";
+  }
+  if (message.toLowerCase().includes("email not confirmed")) {
+    return "Email belum dikonfirmasi sehingga akun belum bisa dipakai. Klik link konfirmasi di email, atau matikan 'Confirm email' di Supabase (Authentication → Sign In / Providers → Email).";
   }
   return message;
 }
@@ -392,9 +396,10 @@ function updateDashboardData() {
 }
 
 async function loadDashboard() {
+  const user = currentUser;
   const [profileResult, accountsResult, categoriesResult, transactionsResult, budgetsResult] =
     await Promise.all([
-      supabase.from("profiles").select("name,email,currency").eq("id", currentUser.id).single(),
+      supabase.from("profiles").select("name,email,currency").eq("id", user.id).single(),
       supabase.from("accounts").select("id,name,type,balance").order("created_at"),
       supabase.from("categories").select("id,name,type,icon").order("name"),
       supabase
@@ -427,10 +432,10 @@ async function loadDashboard() {
   budgets = budgetsResult.data;
 
   const profile = profileResult.data;
-  const name = profile.name || currentUser.user_metadata?.name || currentUser.email;
+  const name = profile.name || user.user_metadata?.name || user.email;
   greetingTitle = `${getGreetingWord()}, ${name}`;
   document.querySelector("#sidebarUserName").textContent = name;
-  document.querySelector("#sidebarUserEmail").textContent = currentUser.email;
+  document.querySelector("#sidebarUserEmail").textContent = user.email;
   document.querySelector("#topUserName").textContent = name;
   renderAccountOptions();
   renderCategoryOptions();
@@ -622,6 +627,7 @@ authForm.addEventListener("submit", async (event) => {
 
   try {
     if (authMode === "signup") {
+      suppressAuthEvents = true;
       const { data: result, error } = await supabase.auth.signUp({
         email,
         password,
@@ -629,15 +635,17 @@ authForm.addEventListener("submit", async (event) => {
       });
       if (error) throw error;
       if (result.session) {
-        authForm.reset();
-        await showUserDashboard(result.user);
-      } else {
-        showAuthFeedback(
-          "Akun berhasil dibuat. Periksa email untuk konfirmasi, lalu masuk.",
-        );
-        setAuthMode("signin");
+        await supabase.auth.signOut();
       }
+      authForm.reset();
+      setAuthMode("signin");
+      showAuthFeedback(
+        result.session
+          ? "Akun berhasil dibuat. Silakan masuk."
+          : "Akun berhasil dibuat. Periksa email untuk konfirmasi, lalu masuk.",
+      );
     } else {
+      suppressAuthEvents = true;
       const { data: result, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -649,6 +657,7 @@ authForm.addEventListener("submit", async (event) => {
   } catch (error) {
     showAuthFeedback(getAuthErrorMessage(error), true);
   } finally {
+    suppressAuthEvents = false;
     submit.disabled = false;
   }
 });
@@ -764,6 +773,7 @@ async function initializeApp() {
     if (error) throw error;
     await showUserDashboard(session?.user || null);
     supabase.auth.onAuthStateChange((event, sessionChange) => {
+      if (suppressAuthEvents) return;
       if (event === "SIGNED_OUT") {
         void showUserDashboard(null);
       } else if (event === "SIGNED_IN" && sessionChange?.user?.id !== currentUser?.id) {
