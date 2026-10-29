@@ -47,6 +47,14 @@ function getLocalDateValue(date = new Date()) {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 }
 
+function getGreetingWord(date = new Date()) {
+  const hour = date.getHours();
+  if (hour < 11) return "Selamat pagi";
+  if (hour < 15) return "Selamat siang";
+  if (hour < 18) return "Selamat sore";
+  return "Selamat malam";
+}
+
 function showToast(message, isError = false) {
   toast.textContent = message;
   toast.classList.toggle("toast-error", isError);
@@ -419,7 +427,7 @@ async function loadDashboard() {
 
   const profile = profileResult.data;
   const name = profile.name || currentUser.user_metadata?.name || currentUser.email;
-  greetingTitle = `Selamat pagi, ${name}`;
+  greetingTitle = `${getGreetingWord()}, ${name}`;
   document.querySelector("#sidebarUserName").textContent = name;
   document.querySelector("#sidebarUserEmail").textContent = currentUser.email;
   document.querySelector("#topUserName").textContent = name;

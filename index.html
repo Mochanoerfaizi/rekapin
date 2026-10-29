@@ -1,302 +1,425 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f8fa" />
-    <meta
-      name="description"
-      content="Kelola keuangan dengan lebih tenang bersama rekap.in."
-    />
-    <title>rekap.in — Dashboard Keuangan</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <section class="auth-screen" id="authScreen">
-      <div class="auth-card">
-        <a class="brand auth-brand" href="#" aria-label="rekap.in">
-          <img class="brand-mark" src="assets/rekap-in-logo.png" alt="" />
-          <span class="brand-name">rekap<span>.in</span></span>
-        </a>
-        <div id="configHelp" class="config-help" hidden>
-          <h1>Hubungkan database</h1>
-          <p>Tambahkan kredensial project Supabase lokal agar bisa membuat akun dan mulai mencatat.</p>
-          <ol>
-            <li>Salin <code>.env.example</code> menjadi <code>.env.local</code>.</li>
-            <li>Isi URL project dan <strong>anon/publishable key</strong> dari pengaturan API Supabase, lalu mulai ulang Vite.</li>
-            <li>Jalankan <code>supabase/schema.sql</code> di Supabase SQL Editor, lalu muat ulang aplikasi.</li>
-          </ol>
-          <p class="config-warning">Jangan masukkan <strong>service_role key</strong> ke aplikasi.</p>
-        </div>
-        <div id="authContent" hidden>
-          <span class="modal-kicker" id="authKicker">MULAI KELOLA KEUANGAN</span>
-          <h1 id="authTitle">Masuk ke akunmu</h1>
-          <p class="auth-description" id="authDescription">Catatan keuanganmu tersimpan aman di akun pribadi.</p>
-          <form id="authForm">
-            <label class="form-field" id="signupNameField" hidden><span>Nama</span><input name="name" type="text" autocomplete="name" placeholder="Nama kamu" /></label>
-            <label class="form-field"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com" required /></label>
-            <label class="form-field"><span>Kata sandi</span><input name="password" type="password" autocomplete="current-password" minlength="8" placeholder="Minimal 8 karakter" required /></label>
-            <button class="button button-primary auth-submit" id="authSubmit" type="submit">Masuk</button>
-          </form>
-          <p class="auth-toggle-copy"><span id="authToggleText">Belum punya akun?</span> <button id="authToggle" type="button">Daftar</button></p>
-          <p class="auth-feedback" id="authFeedback" role="status" aria-live="polite"></p>
-        </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f8fa" />
+  <meta name="description" content="Kelola keuangan dengan lebih tenang bersama rekap.in." />
+  <title>rekap.in — Dashboard Keuangan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <a class="brand auth-brand" href="#" aria-label="rekap.in">
+        <img class="brand-mark" src="assets/rekap-in-logo.png" alt="" />
+        <span class="brand-name">rekap<span>.in</span></span>
+      </a>
+      <div id="configHelp" class="config-help" hidden>
+        <h1>Hubungkan database</h1>
+        <p>Tambahkan kredensial project Supabase lokal agar bisa membuat akun dan mulai mencatat.</p>
+        <ol>
+          <li>Salin <code>.env.example</code> menjadi <code>.env.local</code>.</li>
+          <li>Isi URL project dan <strong>anon/publishable key</strong> dari pengaturan API Supabase, lalu mulai ulang
+            Vite.</li>
+          <li>Jalankan <code>supabase/schema.sql</code> di Supabase SQL Editor, lalu muat ulang aplikasi.</li>
+        </ol>
+        <p class="config-warning">Jangan masukkan <strong>service_role key</strong> ke aplikasi.</p>
       </div>
-      <p class="auth-footer">Data pribadi hanya dapat diakses oleh akunmu.</p>
-    </section>
-
-    <div class="app-shell" id="appShell" hidden>
-      <aside class="sidebar" id="sidebar">
-        <a class="brand" href="#" aria-label="rekap.in beranda">
-          <img class="brand-mark" src="assets/rekap-in-logo.png" alt="" />
-          <span class="brand-name">rekap<span>.in</span></span>
-        </a>
-
-        <div class="workspace-label">MENU UTAMA</div>
-        <nav class="main-nav" aria-label="Navigasi utama">
-          <a class="nav-link active" href="#dashboard" data-page="dashboard">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="15" width="7" height="6" rx="2"/></svg>
-            <span>Dashboard</span>
-          </a>
-          <a class="nav-link" href="#transaksi" data-page="transaksi">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="3"/></svg>
-            <span>Transaksi</span>
-            <span class="nav-count" id="transactionCount">0</span>
-          </a>
-          <a class="nav-link" href="#anggaran" data-page="anggaran">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16"/><path d="m7 15 4-4 3 2 5-6"/><path d="M16 7h3v3"/></svg>
-            <span>Anggaran</span>
-          </a>
-          <a class="nav-link" href="#dompet" data-page="dompet">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 10h18M16 15h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg>
-            <span>Dompet</span>
-          </a>
-        </nav>
-
-        <div class="workspace-label tools-label">PREFERENSI</div>
-        <nav class="main-nav" aria-label="Preferensi">
-          <a class="nav-link" href="#pengaturan" data-page="pengaturan">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.9h-2.8l-.3-1.9a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4 1.5-1.1a7 7 0 0 1 0-2l-1.5-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.9h2.8l.3 1.9a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.5 1.1a7 7 0 0 1 0 2Z" transform="translate(-1 -1)"/></svg>
-            <span>Pengaturan</span>
-          </a>
-          <a class="nav-link" href="#bantuan" data-page="bantuan">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.2 1.8c-1.1 1-1.8 1.3-1.8 2.7M12 17h.01"/></svg>
-            <span>Pusat bantuan</span>
-          </a>
-        </nav>
-
-        <div class="sidebar-bottom">
-          <div class="upgrade-card">
-            <span class="upgrade-sparkle">✦</span>
-            <div class="upgrade-title">Kelola uang, tanpa batas.</div>
-            <p>Dapatkan insight lebih dalam tentang kebiasaan finansialmu.</p>
-            <button class="upgrade-button" type="button">Jelajahi fitur <span>↗</span></button>
-          </div>
-          <button class="profile-button" id="sidebarLogout" type="button" aria-label="Keluar dari akun">
-            <span class="avatar">AP</span>
-            <span class="profile-copy"><strong id="sidebarUserName">Akun</strong><small id="sidebarUserEmail">Personal account</small></span>
-            <span class="profile-more logout-label">Keluar</span>
-          </button>
-        </div>
-      </aside>
-
-      <main class="main-content" id="dashboard">
-        <header class="topbar">
-          <button class="mobile-menu icon-button" id="mobileMenu" type="button" aria-label="Buka menu">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-          </button>
-          <div class="breadcrumb"><span>Halaman</span><span class="breadcrumb-slash">/</span><strong id="breadcrumbCurrent">Dashboard</strong></div>
-          <div class="topbar-actions">
-            <button class="icon-button top-search" type="button" aria-label="Cari" id="focusSearch">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
-            </button>
-            <button class="icon-button notification-button" type="button" aria-label="Notifikasi">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
-              <span class="notification-dot"></span>
-            </button>
-            <div class="topbar-divider"></div>
-            <button class="top-profile" id="topLogout" type="button" aria-label="Keluar dari akun">
-              <span class="avatar avatar-small">AP</span>
-              <span class="top-profile-name" id="topUserName">Akun</span>
-              <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
-            </button>
-          </div>
-        </header>
-
-        <div class="page-container">
-          <section class="welcome-row">
-            <div>
-              <p class="eyebrow" id="todayLabel">SENIN, 12 AGUSTUS 2024</p>
-              <h1 id="pageTitle">Selamat pagi <span class="wave">✦</span></h1>
-              <p class="welcome-subtitle" id="pageSubtitle">Ini ringkasan keuanganmu hari ini. Tetap semangat, ya!</p>
-            </div>
-            <div class="header-buttons">
-              <button class="button button-secondary" id="exportButton" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
-                <span>Export laporan</span>
-              </button>
-              <button class="button button-primary" id="addTransaction" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                <span>Tambah transaksi</span>
-              </button>
-            </div>
-          </section>
-
-          <section class="summary-grid" data-pages="dashboard" aria-label="Ringkasan keuangan">
-            <article class="summary-card balance-card">
-              <div class="card-topline">
-                <span class="summary-label">Saldo bersih</span>
-                <span class="summary-icon purple-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 10h18M16 15h2"/><path d="M7 5V4a2 2 0 0 1 2-2h9"/></svg></span>
-              </div>
-              <div class="summary-amount" id="totalBalance">Rp 0</div>
-              <div class="summary-foot">Pemasukan dikurangi pengeluaran</div>
-              <div class="balance-decoration decoration-one"></div><div class="balance-decoration decoration-two"></div>
-            </article>
-            <article class="summary-card">
-              <div class="card-topline">
-                <span class="summary-label">Pemasukan bulan ini</span>
-                <span class="summary-icon green-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m0 0-6 6m6-6 6 6"/></svg></span>
-              </div>
-              <div class="summary-amount" id="totalIncome">Rp 0</div>
-              <div class="summary-foot">Berdasarkan catatan bulan ini</div>
-              <div class="mini-bars income-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            </article>
-            <article class="summary-card">
-              <div class="card-topline">
-                <span class="summary-label">Pengeluaran bulan ini</span>
-                <span class="summary-icon orange-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg></span>
-              </div>
-              <div class="summary-amount" id="totalExpense">Rp 0</div>
-              <div class="summary-foot">Berdasarkan catatan bulan ini</div>
-              <div class="mini-bars expense-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            </article>
-          </section>
-
-          <section class="content-grid" data-pages="dashboard anggaran" id="overviewGrid">
-            <article class="panel cashflow-panel" data-pages="dashboard">
-              <div class="panel-heading">
-                <div><h2>Arus kas</h2><p>Pantau pemasukan dan pengeluaranmu</p></div>
-                <button class="select-button" id="chartRange" type="button">7 hari terakhir <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
-              </div>
-              <div class="chart-legend"><span><i class="legend-dot income-dot"></i>Pemasukan</span><span><i class="legend-dot expense-dot"></i>Pengeluaran</span></div>
-              <div class="chart-wrap">
-                <div class="chart-y-labels"><span>Rp 0</span><span>Rp 0</span><span>Rp 0</span><span>Rp 0</span></div>
-                <div class="chart-area">
-                  <div class="chart-grid-lines"><i></i><i></i><i></i><i></i></div>
-                  <div class="chart-bars" id="chartBars" aria-label="Grafik arus kas 7 hari terakhir"></div>
-                </div>
-              </div>
-            </article>
-
-            <article class="panel budget-panel" data-pages="dashboard anggaran" id="anggaran">
-              <div class="panel-heading">
-                <div><h2>Anggaran bulan ini</h2><p>Pengeluaran vs batas anggaran</p></div>
-                <button class="more-button" type="button" aria-label="Menu anggaran"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
-              </div>
-              <div class="budget-total">
-                <div><strong id="budgetSpent">Rp 0</strong><span>dari <span id="budgetTarget">Rp 0</span></span></div>
-                <span class="budget-percent" id="budgetPercent">0%</span>
-              </div>
-              <div class="progress-track overall-progress"><span style="width:0%"></span></div>
-              <div class="budget-caption"><span><i class="legend-dot expense-dot"></i>Terpakai</span><span><i class="legend-dot remaining-dot"></i>Tersisa <strong id="budgetRemaining">Rp 0</strong></span></div>
-              <div class="budget-divider"></div>
-              <div class="category-budget-list" id="categoryBudgetList"></div>
-              <p class="budget-empty" id="budgetEmpty">Belum ada anggaran. Data anggaran akan muncul setelah kamu menambahkannya.</p>
-              <button class="text-link" data-page="anggaran" type="button">Kelola anggaran <span>→</span></button>
-            </article>
-          </section>
-
-          <section class="panel transactions-panel" data-pages="dashboard transaksi" id="transaksi">
-            <div class="panel-heading transactions-heading">
-              <div><h2>Transaksi terbaru</h2><p>Catatan aktivitas keuanganmu</p></div>
-              <div class="transaction-tools">
-                <label class="search-input">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
-                  <input id="transactionSearch" type="search" placeholder="Cari transaksi..." aria-label="Cari transaksi" />
-                  <kbd>⌘ K</kbd>
-                </label>
-                <button class="filter-button" id="filterButton" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10m-7 5h4"/></svg>Filter</button>
-              </div>
-            </div>
-            <div class="transactions-table-wrap">
-              <table class="transactions-table">
-                <thead><tr><th>TRANSAKSI</th><th>KATEGORI</th><th>TANGGAL</th><th>DOMPET</th><th class="amount-heading">JUMLAH</th></tr></thead>
-                <tbody id="transactionRows"></tbody>
-              </table>
-              <div class="empty-search" id="emptySearch" hidden>Belum ada transaksi. Tambahkan transaksi pertama untuk mulai mencatat.</div>
-            </div>
-            <div class="table-footer"><span>Menampilkan <strong id="resultCount">0</strong> dari <strong id="totalRecordCount">0</strong> catatan</span><button class="text-link" data-page="transaksi" type="button">Lihat semua transaksi <span>→</span></button></div>
-          </section>
-          <section class="panel wallet-panel" data-pages="dompet" id="dompet">
-            <div class="panel-heading">
-              <div><h2>Dompet kamu</h2><p>Nama-nama sumber dana yang kamu gunakan</p></div>
-            </div>
-            <div class="wallet-grid" id="walletList"></div>
-            <p class="budget-empty" id="walletEmpty">Belum ada dompet. Dompet akan muncul setelah data akunmu tersedia.</p>
-          </section>
-
-          <section class="panel settings-panel" data-pages="pengaturan" id="pengaturan">
-            <div class="panel-heading">
-              <div><h2>Preferensi akun</h2><p>Pengaturan dasar untuk pengalamanmu di rekap.in</p></div>
-            </div>
-            <div class="settings-list">
-              <div class="settings-row"><span>Mata uang</span><strong>IDR — Rupiah</strong></div>
-              <div class="settings-row"><span>Zona waktu</span><strong>Asia/Jakarta</strong></div>
-              <div class="settings-row"><span>Bahasa</span><strong>Bahasa Indonesia</strong></div>
-            </div>
-          </section>
-
-          <section class="panel help-panel" data-pages="bantuan" id="bantuan">
-            <div class="panel-heading">
-              <div><h2>Butuh bantuan?</h2><p>Pertanyaan yang sering diajukan</p></div>
-            </div>
-            <div class="help-list">
-              <details class="help-item" open>
-                <summary>Bagaimana cara mencatat transaksi?</summary>
-                <p>Tekan tombol <strong>Tambah transaksi</strong>, isi nominal, kategori, dompet, dan tanggal, lalu simpan.</p>
-              </details>
-              <details class="help-item">
-                <summary>Kenapa saldo dompet berubah otomatis?</summary>
-                <p>Saldo dihitung dari transaksi yang kamu catat. Pemasukan menambah saldo, pengeluaran menguranginya.</p>
-              </details>
-              <details class="help-item">
-                <summary>Bagaimana cara membuat anggaran?</summary>
-                <p>Buka halaman <strong>Anggaran</strong> untuk memantau batas pengeluaran per kategori selama periode berjalan.</p>
-              </details>
-            </div>
-          </section>
-
-          <footer class="page-footer"><span>© 2024 rekap.in. Kelola uang dengan lebih tenang.</span><span>Made with <span class="heart">♥</span> for your financial peace</span></footer>
-        </div>
-      </main>
-    </div>
-
-    <div class="modal-backdrop" id="transactionModal" hidden>
-      <section class="transaction-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <div class="modal-header"><div><span class="modal-kicker">TRANSAKSI BARU</span><h2 id="modalTitle">Catat pengeluaran</h2></div><button class="icon-button close-modal" id="closeModal" type="button" aria-label="Tutup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-        <div class="type-switch" role="group" aria-label="Jenis transaksi"><button class="type-option selected" data-type="expense" type="button">Pengeluaran</button><button class="type-option" data-type="income" type="button">Pemasukan</button></div>
-        <form id="transactionForm">
-          <label class="form-field amount-field"><span id="amountLabel">Nominal</span><div class="amount-input-wrap"><span>Rp</span><input id="amountInput" name="amount" type="number" min="1" step="1" placeholder="0" required /></div></label>
-          <p class="income-description" id="incomeDescription" hidden>Masukkan jumlah pemasukan rutin yang kamu terima setiap bulan.</p>
-          <div class="expense-fields" id="expenseFields">
-            <div class="form-row">
-                  <label class="form-field"><span>Kategori</span><select name="category" id="categoryInput" required></select></label>
-                  <label class="form-field"><span>Dompet</span><select name="wallet" id="walletInput" required></select></label>
-            </div>
-            <label class="form-field"><span>Catatan <small>(opsional)</small></span><input name="notes" type="text" placeholder="Contoh: Makan siang" /></label>
-            <label class="form-field"><span>Tanggal</span><input name="date" type="date" required /></label>
-          </div>
-          <div class="modal-actions"><button class="button button-secondary" id="cancelModal" type="button">Batal</button><button class="button button-primary" id="saveTransaction" type="submit">Simpan transaksi</button></div>
+      <div id="authContent" hidden>
+        <span class="modal-kicker" id="authKicker">MULAI KELOLA KEUANGAN</span>
+        <h1 id="authTitle">Masuk ke akunmu</h1>
+        <p class="auth-description" id="authDescription">Catatan keuanganmu tersimpan aman di akun pribadi.</p>
+        <form id="authForm">
+          <label class="form-field" id="signupNameField" hidden><span>Nama</span><input name="name" type="text"
+              autocomplete="name" placeholder="Nama kamu" /></label>
+          <label class="form-field"><span>Email</span><input name="email" type="email" autocomplete="email"
+              placeholder="nama@email.com" required /></label>
+          <label class="form-field"><span>Kata sandi</span><input name="password" type="password"
+              autocomplete="current-password" minlength="8" placeholder="Minimal 8 karakter" required /></label>
+          <button class="button button-primary auth-submit" id="authSubmit" type="submit">Masuk</button>
         </form>
-      </section>
+        <p class="auth-toggle-copy"><span id="authToggleText">Belum punya akun?</span> <button id="authToggle"
+            type="button">Daftar</button></p>
+        <p class="auth-feedback" id="authFeedback" role="status" aria-live="polite"></p>
+      </div>
     </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="app.js"></script>
-  </body>
+    <p class="auth-footer">Data pribadi hanya dapat diakses oleh akunmu.</p>
+  </section>
+
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="rekap.in beranda">
+        <img class="brand-mark" src="assets/rekap-in-logo.png" alt="" />
+        <span class="brand-name">rekap<span>.in</span></span>
+      </a>
+
+      <div class="workspace-label">MENU UTAMA</div>
+      <nav class="main-nav" aria-label="Navigasi utama">
+        <a class="nav-link active" href="#dashboard" data-page="dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="8" rx="2" />
+            <rect x="14" y="3" width="7" height="5" rx="2" />
+            <rect x="14" y="12" width="7" height="9" rx="2" />
+            <rect x="3" y="15" width="7" height="6" rx="2" />
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-link" href="#transaksi" data-page="transaksi">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h10" />
+            <circle cx="18" cy="17" r="3" />
+          </svg>
+          <span>Transaksi</span>
+          <span class="nav-count" id="transactionCount">0</span>
+        </a>
+        <a class="nav-link" href="#anggaran" data-page="anggaran">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19V5m0 14h16" />
+            <path d="m7 15 4-4 3 2 5-6" />
+            <path d="M16 7h3v3" />
+          </svg>
+          <span>Anggaran</span>
+        </a>
+        <a class="nav-link" href="#dompet" data-page="dompet">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="6" width="18" height="15" rx="3" />
+            <path d="M3 10h18M16 15h2" />
+            <path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19" />
+          </svg>
+          <span>Dompet</span>
+        </a>
+      </nav>
+
+      <div class="workspace-label tools-label">PREFERENSI</div>
+      <nav class="main-nav" aria-label="Preferensi">
+        <a class="nav-link" href="#pengaturan" data-page="pengaturan">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.9h-2.8l-.3-1.9a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4 1.5-1.1a7 7 0 0 1 0-2l-1.5-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.9h2.8l.3 1.9a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.5 1.1a7 7 0 0 1 0 2Z"
+              transform="translate(-1 -1)" />
+          </svg>
+          <span>Pengaturan</span>
+        </a>
+        <a class="nav-link" href="#bantuan" data-page="bantuan">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.6 9a2.5 2.5 0 1 1 4.2 1.8c-1.1 1-1.8 1.3-1.8 2.7M12 17h.01" />
+          </svg>
+          <span>Pusat bantuan</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="upgrade-card">
+          <span class="upgrade-sparkle">✦</span>
+          <div class="upgrade-title">Kelola uang, tanpa batas.</div>
+          <p>Dapatkan insight lebih dalam tentang kebiasaan finansialmu.</p>
+          <button class="upgrade-button" type="button">Jelajahi fitur <span>↗</span></button>
+        </div>
+        <button class="profile-button" id="sidebarLogout" type="button" aria-label="Keluar dari akun">
+          <span class="avatar">AP</span>
+          <span class="profile-copy"><strong id="sidebarUserName">Akun</strong><small id="sidebarUserEmail">Personal
+              account</small></span>
+          <span class="profile-more logout-label">Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content" id="dashboard">
+      <header class="topbar">
+        <button class="mobile-menu icon-button" id="mobileMenu" type="button" aria-label="Buka menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+        <div class="breadcrumb"><span>Halaman</span><span class="breadcrumb-slash">/</span><strong
+            id="breadcrumbCurrent">Dashboard</strong></div>
+        <div class="topbar-actions">
+          <button class="icon-button top-search" type="button" aria-label="Cari" id="focusSearch">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.8" cy="10.8" r="6.8" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
+          </button>
+          <button class="icon-button notification-button" type="button" aria-label="Notifikasi">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+            </svg>
+            <span class="notification-dot"></span>
+          </button>
+          <div class="topbar-divider"></div>
+          <button class="top-profile" id="topLogout" type="button" aria-label="Keluar dari akun">
+            <span class="avatar avatar-small">AP</span>
+            <span class="top-profile-name" id="topUserName">Akun</span>
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 10 5 5 5-5" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <section class="welcome-row">
+          <div>
+            <p class="eyebrow" id="todayLabel">SENIN, 12 AGUSTUS 2024</p>
+            <h1 id="pageTitle">Selamat pagi <span class="wave">✦</span></h1>
+            <p class="welcome-subtitle" id="pageSubtitle">Ini ringkasan keuanganmu hari ini. Tetap semangat, ya!</p>
+          </div>
+          <div class="header-buttons" data-pages="dashboard transaksi">
+            <button class="button button-secondary" id="exportButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12m0 0 4-4m-4 4-4-4" />
+                <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+              </svg>
+              <span>Export laporan</span>
+            </button>
+            <button class="button button-primary" id="addTransaction" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>Tambah transaksi</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="summary-grid" data-pages="dashboard" aria-label="Ringkasan keuangan">
+          <article class="summary-card balance-card">
+            <div class="card-topline">
+              <span class="summary-label">Saldo bersih</span>
+              <span class="summary-icon purple-icon"><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="15" rx="3" />
+                  <path d="M3 10h18M16 15h2" />
+                  <path d="M7 5V4a2 2 0 0 1 2-2h9" />
+                </svg></span>
+            </div>
+            <div class="summary-amount" id="totalBalance">Rp 0</div>
+            <div class="summary-foot">Pemasukan dikurangi pengeluaran</div>
+            <div class="balance-decoration decoration-one"></div>
+            <div class="balance-decoration decoration-two"></div>
+          </article>
+          <article class="summary-card">
+            <div class="card-topline">
+              <span class="summary-label">Pemasukan bulan ini</span>
+              <span class="summary-icon green-icon"><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 19V5m0 0-6 6m6-6 6 6" />
+                </svg></span>
+            </div>
+            <div class="summary-amount" id="totalIncome">Rp 0</div>
+            <div class="summary-foot">Berdasarkan catatan bulan ini</div>
+            <div class="mini-bars income-bars" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </article>
+          <article class="summary-card">
+            <div class="card-topline">
+              <span class="summary-label">Pengeluaran bulan ini</span>
+              <span class="summary-icon orange-icon"><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14m0 0 6-6m-6 6-6-6" />
+                </svg></span>
+            </div>
+            <div class="summary-amount" id="totalExpense">Rp 0</div>
+            <div class="summary-foot">Berdasarkan catatan bulan ini</div>
+            <div class="mini-bars expense-bars" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </article>
+        </section>
+
+        <section class="content-grid" data-pages="dashboard anggaran" id="overviewGrid">
+          <article class="panel cashflow-panel" data-pages="dashboard">
+            <div class="panel-heading">
+              <div>
+                <h2>Arus kas</h2>
+                <p>Pantau pemasukan dan pengeluaranmu</p>
+              </div>
+              <button class="select-button" id="chartRange" type="button">7 hari terakhir <svg viewBox="0 0 24 24"
+                  aria-hidden="true">
+                  <path d="m7 10 5 5 5-5" />
+                </svg></button>
+            </div>
+            <div class="chart-legend"><span><i class="legend-dot income-dot"></i>Pemasukan</span><span><i
+                  class="legend-dot expense-dot"></i>Pengeluaran</span></div>
+            <div class="chart-wrap">
+              <div class="chart-y-labels"><span>Rp 0</span><span>Rp 0</span><span>Rp 0</span><span>Rp 0</span></div>
+              <div class="chart-area">
+                <div class="chart-grid-lines"><i></i><i></i><i></i><i></i></div>
+                <div class="chart-bars" id="chartBars" aria-label="Grafik arus kas 7 hari terakhir"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel budget-panel" data-pages="dashboard anggaran" id="anggaran">
+            <div class="panel-heading">
+              <div>
+                <h2>Anggaran bulan ini</h2>
+                <p>Pengeluaran vs batas anggaran</p>
+              </div>
+              <button class="more-button" type="button" aria-label="Menu anggaran"><svg viewBox="0 0 24 24"
+                  aria-hidden="true">
+                  <circle cx="5" cy="12" r="1" />
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="19" cy="12" r="1" />
+                </svg></button>
+            </div>
+            <div class="budget-total">
+              <div><strong id="budgetSpent">Rp 0</strong><span>dari <span id="budgetTarget">Rp 0</span></span></div>
+              <span class="budget-percent" id="budgetPercent">0%</span>
+            </div>
+            <div class="progress-track overall-progress"><span style="width:0%"></span></div>
+            <div class="budget-caption"><span><i class="legend-dot expense-dot"></i>Terpakai</span><span><i
+                  class="legend-dot remaining-dot"></i>Tersisa <strong id="budgetRemaining">Rp 0</strong></span></div>
+            <div class="budget-divider"></div>
+            <div class="category-budget-list" id="categoryBudgetList"></div>
+            <p class="budget-empty" id="budgetEmpty">Belum ada anggaran. Data anggaran akan muncul setelah kamu
+              menambahkannya.</p>
+            <button class="text-link" data-page="anggaran" type="button">Kelola anggaran <span>→</span></button>
+          </article>
+        </section>
+
+        <section class="panel transactions-panel" data-pages="dashboard transaksi" id="transaksi">
+          <div class="panel-heading transactions-heading">
+            <div>
+              <h2>Transaksi terbaru</h2>
+              <p>Catatan aktivitas keuanganmu</p>
+            </div>
+            <div class="transaction-tools">
+              <label class="search-input">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="10.8" cy="10.8" r="6.8" />
+                  <path d="m16 16 4.5 4.5" />
+                </svg>
+                <input id="transactionSearch" type="search" placeholder="Cari transaksi..."
+                  aria-label="Cari transaksi" />
+                <kbd>⌘ K</kbd>
+              </label>
+              <button class="filter-button" id="filterButton" type="button"><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16M7 12h10m-7 5h4" />
+                </svg>Filter</button>
+            </div>
+          </div>
+          <div class="transactions-table-wrap">
+            <table class="transactions-table">
+              <thead>
+                <tr>
+                  <th>TRANSAKSI</th>
+                  <th>KATEGORI</th>
+                  <th>TANGGAL</th>
+                  <th>DOMPET</th>
+                  <th class="amount-heading">JUMLAH</th>
+                </tr>
+              </thead>
+              <tbody id="transactionRows"></tbody>
+            </table>
+            <div class="empty-search" id="emptySearch" hidden>Belum ada transaksi. Tambahkan transaksi pertama untuk
+              mulai mencatat.</div>
+          </div>
+          <div class="table-footer"><span>Menampilkan <strong id="resultCount">0</strong> dari <strong
+                id="totalRecordCount">0</strong> catatan</span><button class="text-link" data-page="transaksi"
+              type="button">Lihat semua transaksi <span>→</span></button></div>
+        </section>
+        <section class="panel wallet-panel" data-pages="dompet" id="dompet">
+          <div class="panel-heading">
+            <div>
+              <h2>Dompet kamu</h2>
+              <p>Nama-nama sumber dana yang kamu gunakan</p>
+            </div>
+          </div>
+          <div class="wallet-grid" id="walletList"></div>
+          <p class="budget-empty" id="walletEmpty">Belum ada dompet. Dompet akan muncul setelah data akunmu tersedia.
+          </p>
+        </section>
+
+        <section class="panel settings-panel" data-pages="pengaturan" id="pengaturan">
+          <div class="panel-heading">
+            <div>
+              <h2>Preferensi akun</h2>
+              <p>Pengaturan dasar untuk pengalamanmu di rekap.in</p>
+            </div>
+          </div>
+          <div class="settings-list">
+            <div class="settings-row"><span>Mata uang</span><strong>IDR — Rupiah</strong></div>
+            <div class="settings-row"><span>Zona waktu</span><strong>Asia/Jakarta</strong></div>
+            <div class="settings-row"><span>Bahasa</span><strong>Bahasa Indonesia</strong></div>
+          </div>
+        </section>
+
+        <section class="panel help-panel" data-pages="bantuan" id="bantuan">
+          <div class="panel-heading">
+            <div>
+              <h2>Butuh bantuan?</h2>
+              <p>Pertanyaan yang sering diajukan</p>
+            </div>
+          </div>
+          <div class="help-list">
+            <details class="help-item" open>
+              <summary>Bagaimana cara mencatat transaksi?</summary>
+              <p>Tekan tombol <strong>Tambah transaksi</strong>, isi nominal, kategori, dompet, dan tanggal, lalu
+                simpan.</p>
+            </details>
+            <details class="help-item">
+              <summary>Kenapa saldo dompet berubah otomatis?</summary>
+              <p>Saldo dihitung dari transaksi yang kamu catat. Pemasukan menambah saldo, pengeluaran menguranginya.</p>
+            </details>
+            <details class="help-item">
+              <summary>Bagaimana cara membuat anggaran?</summary>
+              <p>Buka halaman <strong>Anggaran</strong> untuk memantau batas pengeluaran per kategori selama periode
+                berjalan.</p>
+            </details>
+          </div>
+        </section>
+
+        <footer class="page-footer"><span>© 2026 rekap.in. Kelola uang dengan lebih tenang.</span><span>Made with <span
+              class="heart">♥</span> for your financial peace</span></footer>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="transactionModal" hidden>
+    <section class="transaction-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div><span class="modal-kicker">TRANSAKSI BARU</span>
+          <h2 id="modalTitle">Catat pengeluaran</h2>
+        </div><button class="icon-button close-modal" id="closeModal" type="button" aria-label="Tutup"><svg
+            viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg></button>
+      </div>
+      <div class="type-switch" role="group" aria-label="Jenis transaksi"><button class="type-option selected"
+          data-type="expense" type="button">Pengeluaran</button><button class="type-option" data-type="income"
+          type="button">Pemasukan</button></div>
+      <form id="transactionForm">
+        <label class="form-field amount-field"><span id="amountLabel">Nominal</span>
+          <div class="amount-input-wrap"><span>Rp</span><input id="amountInput" name="amount" type="number" min="1"
+              step="1" placeholder="0" required /></div>
+        </label>
+        <p class="income-description" id="incomeDescription" hidden>Masukkan jumlah pemasukan rutin yang kamu terima
+          setiap bulan.</p>
+        <div class="expense-fields" id="expenseFields">
+          <div class="form-row">
+            <label class="form-field"><span>Kategori</span><select name="category" id="categoryInput"
+                required></select></label>
+            <label class="form-field"><span>Dompet</span><select name="wallet" id="walletInput"
+                required></select></label>
+          </div>
+          <label class="form-field"><span>Catatan <small>(opsional)</small></span><input name="notes" type="text"
+              placeholder="Contoh: Makan siang" /></label>
+          <label class="form-field"><span>Tanggal</span><input name="date" type="date" required /></label>
+        </div>
+        <div class="modal-actions"><button class="button button-secondary" id="cancelModal"
+            type="button">Batal</button><button class="button button-primary" id="saveTransaction" type="submit">Simpan
+            transaksi</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+
 </html>
