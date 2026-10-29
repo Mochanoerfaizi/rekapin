@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import writeXlsxFile from "write-excel-file/browser";
 
 const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -571,8 +572,10 @@ function applySearch() {
 
 function exportTransactions() {
   const visibleRows = [...transactionRows.children].filter((row) => !row.hidden);
-  const csvRows = [
-    ["Tanggal", "Jenis", "Kategori", "Sumber Dana", "Nominal", "Catatan"],
+  const rows = [
+    ["Tanggal", "Jenis", "Kategori", "Sumber Dana", "Nominal", "Catatan"].map(
+      (label) => ({ value: label, fontWeight: "bold" }),
+    ),
     ...visibleRows.map((row) => {
       const cells = row.querySelectorAll("td");
       const isIncome = cells[4].classList.contains("income-amount");
@@ -581,24 +584,26 @@ function exportTransactions() {
         isIncome ? "Pemasukan" : "Pengeluaran",
         cells[1].textContent.trim(),
         cells[3].textContent.trim(),
-        cells[4].textContent.replace(/[^\d]/g, ""),
+        {
+          value: Number(cells[4].textContent.replace(/[^\d]/g, "")),
+          format: "#,##0",
+        },
         cells[0].querySelector("strong").textContent.trim(),
       ];
     }),
   ];
-  const csv = csvRows
-    .map((row) =>
-      row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","),
-    )
-    .join("\r\n");
-  const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "laporan-transaksi-rekap-in.csv";
-  link.click();
-  URL.revokeObjectURL(url);
-  showToast("Laporan transaksi berhasil diunduh.");
+  writeXlsxFile(rows, {
+    columns: [
+      { width: 14 },
+      { width: 12 },
+      { width: 16 },
+      { width: 16 },
+      { width: 14 },
+      { width: 32 },
+    ],
+  })
+    .toFile("laporan-transaksi-rekap-in.xlsx")
+    .then(() => showToast("Laporan transaksi berhasil diunduh."));
 }
 
 document.querySelector("#authToggle").addEventListener("click", () => {
